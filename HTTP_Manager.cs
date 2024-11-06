@@ -78,5 +78,24 @@
                 return ($"An error occurred: {e.Message}");
             }
         }
+
+#if(DEBUG)
+        public async Task ProxyDownload(ref List<Tuple<string, string, bool>> downloadList)
+        {
+            //Set random some of the download to be false
+            Random r = new Random(22);
+            
+            foreach (Tuple<string, string, bool> item in downloadList)
+            {
+                if(!item.Item3)
+                    continue;
+
+                //75% chance for link be good
+                int randomNumber = r.Next(100);
+                if(randomNumber > 75)
+                    item.Item3 = false;
+            }
+        }
+#endif
     }
 }

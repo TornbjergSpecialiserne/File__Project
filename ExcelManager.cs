@@ -87,29 +87,31 @@ namespace FileProject
                 for (int i = startRow; i < endRow; i++)
                 {
                     //Avoid header
-                    if(i == 1)
-                        continue;
-
-                    //Get cells         
-                    //Cell A
-                    string cellA = "";
-                    cellA = worksheet.Cells[i, 1].Value?.ToString();
-
-                    //Find Link
-                    string link = "";
-                    //Cell AL
-                    ExcelRange al = worksheet.Cells[i, 38];
-                    if (al.Value != null && al.Value.ToString() != "")
-                        link = al.Value.ToString();
+                    if (i == 1)
+                        values.Add("", "");
                     else
                     {
-                        //Cell AM
-                        ExcelRange am = worksheet.Cells[i, 39];
-                        if (am.Value != null && am.Value.ToString() != "")
-                            link = am.Value.ToString();
-                    }
+                        //Get cells         
+                        //Cell A
+                        string cellA = "";
+                        cellA = worksheet.Cells[i, 1].Value?.ToString();
 
-                    values.Add((cellA, link));
+                        //Find Link
+                        string link = "";
+                        //Cell AL
+                        ExcelRange al = worksheet.Cells[i, 38];
+                        if (al.Value != null && al.Value.ToString() != "")
+                            link = al.Value.ToString();
+                        else
+                        {
+                            //Cell AM
+                            ExcelRange am = worksheet.Cells[i, 39];
+                            if (am.Value != null && am.Value.ToString() != "")
+                                link = am.Value.ToString();
+                        }
+
+                        values.Add((cellA, link));
+                    }
                 }
                 return values;
             }
