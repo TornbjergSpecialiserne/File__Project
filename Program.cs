@@ -10,59 +10,35 @@ try
     ExcelManager excelManager = new ExcelManager();
 
 
-    int foundFile = 0;
-
+    int startrow = 2;
     int rowCount = excelManager.GetNumberOfGRI_Rows();
     int numberOfThreads = rowCount / threadDevider;
 
     List<(string, string)> collectedData = new List<(string, string)> ();
-    Task[] tasks = new Task[]
-    {
-        excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, 0, 1000),
-        excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, 1001, 2000)
-    };    
 
-    foreach (var task in tasks)
+
+    var tasks = new List<Task<List<(string, string)>>>();
+
+    tasks.Add(excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, startrow, 10));
+    tasks.Add(excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, 11, 20));
+
+
+    var taskResult = await Task.WhenAll(tasks);
+
+    Console.WriteLine(taskResult);
+
+    foreach (var item in taskResult)
     {
-        task.Start();
+        Console.WriteLine(item);
     }
 
-    Task.WaitAll(tasks);
-
-    for (global::System.Int32 i = 0; i < tasks.Length; i++)
+    //Write result
+    foreach (var item in collectedData)
     {
-        
+        Console.WriteLine(item);
     }
-
-    //int targetRows = 10;
-    ////Read [targetRows] row with data
-    //for (int i = 2; i < 2 + targetRows; i++)
-    //{
-    //    List<string> cells = excelManager.ReadGRIRow(i);
-
-    //    //No links in cells
-    //    if (cells.Count <= 1)
-    //        continue;
-
-    //    Console.Write($"{i} links: ");
-    //    foreach (string item in cells)
-    //    {
-    //        Console.Write(item + ", ");
-    //    }
-    //    Console.WriteLine();
-
-    //    //HTTP
-    //    HTTP_Manager fileClient = new HTTP_Manager();
-    //    //Download
-    //    //bool downloadResult = await fileClient.DownloadFileAsync(cells[0], cells[1]);
-
-    //    //if(downloadResult)
-    //    //    foundFile++;
-    //}
-
-    //Console.WriteLine($"{foundFile} / {targetRows}");
 }
-catch(Exception e)
+catch (Exception e)
 {
     Console.WriteLine(e);
 }

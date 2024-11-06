@@ -71,7 +71,7 @@ namespace FileProject
             }
         }
 
-        public async Task<IEnumerable<(string, string)>> ReadMultipulRowsWithLinks(string filePath, int startRow, int endRow)
+        public async Task<List<(string, string)>> ReadMultipulRowsWithLinks(string filePath, int startRow, int endRow)
         {
             if(startRow >= endRow)
             {
@@ -88,7 +88,8 @@ namespace FileProject
                 {
                     //Get cells         
                     //Cell A
-                    string cellA = worksheet.Cells[i, 1].Value?.ToString();
+                    string cellA = "";
+                    cellA = worksheet.Cells[i, 1].Value?.ToString();
 
                     //Find Link
                     string link = "";
