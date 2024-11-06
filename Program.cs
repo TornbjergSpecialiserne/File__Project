@@ -1,5 +1,6 @@
 ﻿using FileProject;
 
+namespace FileProject;
 
 Console.WriteLine("Download PDF's");
 
@@ -13,7 +14,7 @@ try
     int rowCount = excelManager.GetNumberOfGRI_Rows();
     int numberOfThreads = rowCount / threadDevider;
 
-    var collectedData = new List<(string, string, bool)> ();
+    var collectedData = new List<URL_Data> ();
 
     //Deviede rows into chunks
     List<(int, int)> rowChunks = new List<(int, int)> ();
@@ -29,7 +30,7 @@ try
     Console.WriteLine("Find links to data");
 
     //Devide tasks
-    var tasks = new List<Task<List<(string, string)>>>();
+    var tasks = new List<Task<URL_Data>>();
     for (int i = 0; i < rowChunks.Count; i++)
     {
         tasks.Add(excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, rowChunks[i].Item1, rowChunks[i].Item2));
@@ -43,16 +44,16 @@ try
     //Collect results
     foreach (var item in taskResult)
     {
-        collectedData.AddRange(item.Select(row => (row.Item1, row.Item2, true)));
+        collectedData.AddRange(item);
     }
 
     // Find bad results
-    for (global::System.Int32 i = 0; i < collectedData; i++)
+    for (global::System.Int32 i = 0; i < collectedData.Count; i++)
     {
-        if (collectedData[i].Item1 == string.Empty)
-            collectedData[i].Item3 = false;
-        else if(collectedData[i].Item2 == string.Empty)
-            collectedData[i].Item3 = false;
+        if (collectedData[i].BR_Nummer == string.Empty)
+            collectedData[i].validLink = false;
+        else if(collectedData[i].URL == string.Empty)
+            collectedData[i].validLink = false;
     }
 
     // Download
@@ -61,12 +62,12 @@ try
     List<Task> downloadTasks = new List<Task>();
     for (int i = 0; i < rowChunks.Count; i++)
     {
-        downloadTasks.Add(httpManager.ProxyDownload(collectedData), rowChunks[i].Item1, rowChunks[i].Item2);
+        //downloadTasks.Add(httpManager.ProxyDownload(collectedData), rowChunks[i].Item1, rowChunks[i].Item2);
     }
 
     await Task.WhenAll(downloadTasks);
-    
-    Console.WriteLine("Give rapport")
+
+    Console.WriteLine("Give rapport");
 
     //Write 
     // Devide into task
