@@ -86,6 +86,10 @@ namespace FileProject
                 
                 for (int i = startRow; i < endRow; i++)
                 {
+                    //Avoid header
+                    if(i == 1)
+                        continue;
+
                     //Get cells         
                     //Cell A
                     string cellA = "";

@@ -3,40 +3,45 @@
 
 Console.WriteLine("Download PDF's");
 
-int threadDevider = 100000;
+int threadDevider = 1000;
 
 try
 {
     ExcelManager excelManager = new ExcelManager();
 
-
-    int startrow = 2;
     int rowCount = excelManager.GetNumberOfGRI_Rows();
     int numberOfThreads = rowCount / threadDevider;
 
-    List<(string, string)> collectedData = new List<(string, string)> ();
+    var collectedData = new List<(string, string)> ();
 
+    //Deviede rows into chunks
+    List<(int, int)> rowChunks = new List<(int, int)> ();
+    for (int i = 0; i < numberOfThreads; i++)
+    {
+        int endValue = (i + 1) * threadDevider;
+        if(endValue > rowCount)
+            endValue = rowCount;
 
+        rowChunks.Add((i * threadDevider + 1, endValue));
+    }
+
+    //Devide tasks
     var tasks = new List<Task<List<(string, string)>>>();
+    for (int i = 0; i < rowChunks.Count; i++)
+    {
+        tasks.Add(excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, rowChunks[i].Item1, rowChunks[i].Item2));
+    }
 
-    tasks.Add(excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, startrow, 10));
-    tasks.Add(excelManager.ReadMultipulRowsWithLinks(ExcelManager.GRI_dataPath, 11, 20));
-
-
+    //Wait for all rows to be read
     var taskResult = await Task.WhenAll(tasks);
 
-    Console.WriteLine(taskResult);
-
+    //Collect results
     foreach (var item in taskResult)
     {
-        Console.WriteLine(item);
+        collectedData.AddRange(item);
     }
 
-    //Write result
-    foreach (var item in collectedData)
-    {
-        Console.WriteLine(item);
-    }
+
 }
 catch (Exception e)
 {
